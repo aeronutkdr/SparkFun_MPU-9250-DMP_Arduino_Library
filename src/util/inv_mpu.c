@@ -1,3 +1,4 @@
+#include "Arduino.h"
 /*
  $License:
     Copyright (C) 2011-2012 InvenSense Corporation, All Rights Reserved.
@@ -2780,7 +2781,7 @@ int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
     unsigned short this_write;
     /* Must divide evenly into st.hw->bank_size to avoid bank crossings. */
 #define LOAD_CHUNK  (16)
-    unsigned char cur[LOAD_CHUNK], tmp[2];
+    unsigned char write[LOAD_CHUNK], cur[LOAD_CHUNK], tmp[2];
 
     if (st.chip_cfg.dmp_loaded)
         /* DMP should only be loaded once. */
@@ -2790,11 +2791,12 @@ int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
         return -1;
     for (ii = 0; ii < length; ii += this_write) {
         this_write = min(LOAD_CHUNK, length - ii);
-        if (mpu_write_mem(ii, this_write, (unsigned char*)&firmware[ii]))
+        memcpy_P(write, firmware+ii, this_write);
+        if (mpu_write_mem(ii, this_write, write))
             return -1;
         if (mpu_read_mem(ii, this_write, cur))
             return -1;
-        if (memcmp(firmware+ii, cur, this_write))
+        if (memcmp(write, cur, this_write))
             return -2;
     }
 

@@ -220,7 +220,7 @@
 
 #define DMP_CODE_SIZE           (3062)
 
-static const unsigned char dmp_memory[DMP_CODE_SIZE] = {
+static PROGMEM const unsigned char dmp_memory_p[DMP_CODE_SIZE] = {
     /* bank # 0 */
     0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00,
     0x00, 0x65, 0x00, 0x54, 0xff, 0xef, 0x00, 0x00, 0xfa, 0x80, 0x00, 0x0b, 0x12, 0x82, 0x00, 0x01,
@@ -475,7 +475,7 @@ static struct dmp_s dmp = {
  */
 int dmp_load_motion_driver_firmware(void)
 {
-    return mpu_load_firmware(DMP_CODE_SIZE, dmp_memory, sStartAddress,
+    return mpu_load_firmware(DMP_CODE_SIZE, dmp_memory_p, sStartAddress,
         DMP_SAMPLE_RATE);
 }
 

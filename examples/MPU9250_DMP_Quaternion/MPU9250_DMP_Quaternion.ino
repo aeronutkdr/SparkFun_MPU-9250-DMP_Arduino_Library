@@ -23,13 +23,20 @@ Supported Platforms:
 *************************************************************/
 #include <SparkFunMPU9250-DMP.h>
 
-#define SerialPort SerialUSB
+#define SerialPort Serial
 
 MPU9250_DMP imu;
 
+int FIFOReady = false;
+void MPUInt(void)
+{
+  FIFOReady = true;
+}
+
 void setup() 
 {
-  SerialPort.begin(115200);
+  attachInterrupt(digitalPinToInterrupt(2), MPUInt, RISING);
+  SerialPort.begin(9600);
 
   // Call imu.begin() to verify communication and initialize
   if (imu.begin() != INV_SUCCESS)
@@ -49,13 +56,16 @@ void setup()
   // DMP_FEATURE_LP_QUAT can also be used. It uses the 
   // accelerometer in low-power mode to estimate quat's.
   // DMP_FEATURE_LP_QUAT and 6X_LP_QUAT are mutually exclusive
+
+  interrupts();
 }
 
 void loop() 
 {
   // Check for new data in the FIFO
-  if ( imu.fifoAvailable() )
+  if ( FIFOReady)
   {
+    FIFOReady = false;
     // Use dmpUpdateFifo to update the ax, gx, mx, etc. values
     if ( imu.dmpUpdateFifo() == INV_SUCCESS)
     {
@@ -69,21 +79,8 @@ void loop()
 
 void printIMUData(void)
 {  
-  // After calling dmpUpdateFifo() the ax, gx, mx, etc. values
-  // are all updated.
-  // Quaternion values are, by default, stored in Q30 long
-  // format. calcQuat turns them into a float between -1 and 1
-  float q0 = imu.calcQuat(imu.qw);
-  float q1 = imu.calcQuat(imu.qx);
-  float q2 = imu.calcQuat(imu.qy);
-  float q3 = imu.calcQuat(imu.qz);
-
-  SerialPort.println("Q: " + String(q0, 4) + ", " +
-                    String(q1, 4) + ", " + String(q2, 4) + 
-                    ", " + String(q3, 4));
-  SerialPort.println("R/P/Y: " + String(imu.roll) + ", "
-            + String(imu.pitch) + ", " + String(imu.yaw));
-  SerialPort.println("Time: " + String(imu.time) + " ms");
-  SerialPort.println();
+  SerialPort.println(String(imu.roll) + "\t"
+            + String(imu.pitch) + "\t" + String(imu.yaw) + 
+            "\t" + String(imu.time));
 }
 

@@ -359,6 +359,7 @@ inv_error_t MPU9250_DMP::updateTemperature(void)
 int MPU9250_DMP::selfTest(unsigned char debug)
 {
 	long gyro[3], accel[3];
+	(void) debug;
 	return mpu_run_self_test(gyro, accel);
 }
 
@@ -622,10 +623,10 @@ float MPU9250_DMP::qToFloat(long number, unsigned char q)
 
 void MPU9250_DMP::computeEulerAngles(bool degrees)
 {
-    float dqw = qToFloat(qw, 30);
-    float dqx = qToFloat(qx, 30);
-    float dqy = qToFloat(qy, 30);
-    float dqz = qToFloat(qz, 30);
+    float dqw = (float)qw / 1073741824.;
+    float dqx = (float)qx / 1073741824.;
+    float dqy = (float)qy / 1073741824.;
+    float dqz = (float)qz / 1073741824.;
     
     float ysqr = dqy * dqy;
     float t0 = -2.0f * (ysqr + dqz * dqz) + 1.0f;
